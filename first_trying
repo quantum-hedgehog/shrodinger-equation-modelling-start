@@ -4,15 +4,18 @@ from scipy.integrate import solve_ivp
 #h = 1, d(psi)/dt = -i*H*psi
 
 def schrodinger_right(t, psi):
-
-    H = np.array([[t, 1j], [-1j, t]], dtype=complex)
-
-    return -1j * H@psi
+    Delta = 1.0
+    Omega = 0.5
+    omega = 1.0   #field frequency
+    H = np.array([[0, Omega * np.cos(omega * t)],
+                  [Omega * np.cos(omega * t), Delta]], dtype=complex)
+    return -1j * H @ psi
 
 #Parameters
 T = 20 #time-window, a half of period
 
-psi_0 = np.array([2, 1+3j], dtype=complex)
+psi_0 = np.array([1, 0], dtype=complex)
+
 norm = np.sqrt(np.sum(np.abs(psi_0)**2))
 psi= psi_0 / norm
 #solve_ivp is solving a problem that looks like dy/dt=f(y,t)
@@ -33,10 +36,16 @@ psi_t = solution.y  # Массив 2x1000
 
 plt.plot(solution.t, np.abs(psi_t[0])**2, label='P0')
 plt.plot(solution.t, np.abs(psi_t[1])**2, label='P1')
-plt.xlabel('Время')
-plt.ylabel('Вероятность')
+plt.xlabel('Time')
+plt.ylabel('Probability')
 plt.legend()
 plt.show()
+
+
+
+
+
+
 
 
 
