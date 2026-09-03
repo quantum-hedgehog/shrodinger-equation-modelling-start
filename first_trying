@@ -7,12 +7,13 @@ def schrodinger_right(t, psi):
     Delta = 1.0
     Omega = 0.5
     omega = 1.0   #field frequency
-    H = np.array([[0, Omega * np.cos(omega * t)],
-                  [Omega * np.cos(omega * t), Delta]], dtype=complex)
+    '''H = np.array([[0, Omega * np.cos(omega * t)],
+                  [Omega * np.cos(omega * t), Delta]], dtype=complex)'''
+    H = np.array([[1, 1],[1, 1]], dtype = complex)
     return -1j * H @ psi
 
 #Parameters
-T = 20 #time-window, a half of period
+T = 5 #time-window, a half of period
 
 psi_0 = np.array([1, 0], dtype=complex)
 
@@ -24,7 +25,7 @@ solution = solve_ivp(
     fun=schrodinger_right,    #function itself
     t_span=(-T, T),
     y0=psi,
-    method='RK45',              #Runge-Kutta 4(5)
+    method='DOP853',              #Runge-Kutta 8
     t_eval=np.linspace(-T, T, 1000), #solving in 1000 dots
     rtol=1e-6,                  # improving accuracy, relative and absolute tolerance
     atol=1e-8
@@ -36,12 +37,11 @@ psi_t = solution.y  # Массив 2x1000
 
 plt.plot(solution.t, np.abs(psi_t[0])**2, label='P0')
 plt.plot(solution.t, np.abs(psi_t[1])**2, label='P1')
+plt.ylim(0, 1)
 plt.xlabel('Time')
 plt.ylabel('Probability')
 plt.legend()
 plt.show()
-
-
 
 
 
