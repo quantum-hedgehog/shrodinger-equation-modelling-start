@@ -1,0 +1,66 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+#h = 1, d(psi)/dt = -i*H*psi
+
+def input_vector(complex_flag=True):
+    """
+    Ввод вектора длины n с клавиатуры.
+    Элементы вводятся в одной строке через пробел.
+    complex_flag=True — числа интерпретируются как комплексные.
+    Возвращает np.array формы (n,).
+    """
+    n = int(input("Введите длину вектора n: "))
+    print(f"Введите {n} элемента(ов) через пробел:")
+    values = input().strip().split()
+    if len(values) != n:
+        raise ValueError(f"Введено {len(values)} элементов, ожидалось {n}")
+    if complex_flag:
+        data = [complex(x) for x in values]
+    else:
+        data = [float(x) for x in values]
+    return np.array(data, dtype=complex if complex_flag else float)
+
+
+def schrodinger_right(t, psi):
+    #Delta = 1.0
+    #Omega = 0.5
+    #omega = 1.0   #field frequency
+    '''H = np.array([[0, Omega * np.cos(omega * t)],
+                  [Omega * np.cos(omega * t), Delta]], dtype=complex)'''
+    H = np.array([[1, 1, 1, 1], [1, 1, 1, 1],[1, 1, 1, 1], [1, 1, 1, 1]], dtype = complex)
+    return -1j * H @ psi
+
+#Parameters
+T = 5 #time-window, a half of period
+
+psi_0 = input_vector()
+
+norm = np.sqrt(np.sum(np.abs(psi_0)**2))
+psi= psi_0 / norm
+#solve_ivp is solving a problem that looks like dy/dt=f(y,t)
+
+solution = solve_ivp(
+    fun=schrodinger_right,    #function itself
+    t_span=(0, T),
+    y0=psi,
+    method='DOP853',              #Runge-Kutta 8
+    t_eval=np.linspace(0, T, 1000), #solving in 1000 dots
+    rtol=1e-6,                  # improving accuracy, relative and absolute tolerance
+    atol=1e-8
+)
+
+#result analysis
+times = solution.t
+psi_t = solution.y  # Массив 2x1000
+
+plt.plot(solution.t, np.abs(psi_t[0])**2, label='P11')
+plt.plot(solution.t, np.abs(psi_t[1])**2, label='P12')
+plt.plot(solution.t, np.abs(psi_t[2])**2, label='P21')
+plt.plot(solution.t, np.abs(psi_t[3])**2, label='P22')
+plt.ylim(0, 1)
+plt.xlabel('Time')
+plt.ylabel('Probability')
+plt.legend()
+plt.show()
+
